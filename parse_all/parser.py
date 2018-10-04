@@ -32,6 +32,7 @@ class top500Parser:
             soup = bs(html_doc, 'html.parser')
             # Check if the system returned an invalid website
             if (str(soup.title).find("Page not found") is -1):
+                log(f"\nsystem {i} is valid")
                 system_params = {}
                 # Getting system name (we know it is the first h1)
                 system_name = soup.find("h1").text
@@ -47,6 +48,7 @@ class top500Parser:
                     "There is a system that has no two tables"
                     continue
                 system_param_table = tables[0]
+                log(f"Obtaining system {i} specifications")
                 for row in system_param_table("tr"):
                     header = row("th")[0].text
                     td_content = row("td")
@@ -55,11 +57,13 @@ class top500Parser:
                     if (len(td_content) is not 0):
                         value = td_content[0].text
                         system_params[header] = value
+                log(f"system {i} available headeres = {str(system_params.keys())}")
                 
                 # Obtainint the tables for the system position in all 
                 # the different lists
                 system_positions = []
                 if (tables[1]):
+                    log(f"system {i} finding positions ...")
                     table_positions = tables[1]("tr")
                     # First row has the headers
                     headers = table_positions[0]("th")
@@ -70,7 +74,7 @@ class top500Parser:
                             header = headers[counter].text
                             new_entry[header] = cellVal.text
                         system_positions.append(new_entry)
-                
+                    log(f"system {i} is in {len(system_positions)} lists")
                 # Adding the positions and the id in the top500 list
                 system_params["positions"] = system_positions
                 system_params["id_top500"] = i
